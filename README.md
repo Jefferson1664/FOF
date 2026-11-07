@@ -1,6 +1,6 @@
 # Fields of Fire — Turn Assistant
 
-**Version 0.4.1** (local)
+**Version 0.4.3** (local)
 
 Version 0.1 : SPA sans dépendances externes.
 

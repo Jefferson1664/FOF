@@ -1,4 +1,4 @@
-const APP_VERSION='0.4.1';
+const APP_VERSION='0.4.3';
 const MISSIONS={
 1:{title:'Trévières Offensive',date:'8–10 juin 1944',type:'Offensive',turns:10,vis:'Daylight +0',map:'4 × 3',objective:'Secure Primary and Secondary Objectives and Clear Rows 1 and 2.',pc:['Row 3: B','Row 2: A','Row 1: C'],tactics:'Deliberate Defense',exp:'Line',enemy:'352nd Division, 90th Brigade',special:'LOD between Staging Area and Row 1; LOA top of Row 3.'},
 2:{title:'Cerisy Offensive',date:'11–19 juin 1944',type:'Offensive',turns:10,vis:'Daylight +0',map:'4 × 5',objective:'Secure Primary and Secondary Objectives and Clear Rows 1 through 4.',pc:['Row 5: A','Rows 3–4: B','Rows 1–2: C'],tactics:'Hasty Defense',exp:'Line',enemy:'9th Fallschirmjäger Regiment, 3rd Fallschirmjäger Division',special:'LOD between Staging Area and Row 1; LOA top of Row 5.'},
@@ -21,6 +21,15 @@ const phases=[
 const cmdRows=[['Pinned','−1'],['Green','−1'],['Veteran','+1'],['Under a Cover marker','+1'],['Small Arms (S) VOF','−1'],['Automatic Weapons (A) VOF','−2'],['Heavy Weapons (H), Sniper (S!), Grenade Attack (G!), Incoming! or Air Strike!','−3'],['Current Activity Level: No Contact','+1']];
 const pcRows=[['A','Auto','7','5','3'],['B','Auto','5','3','2'],['C','4','3','2','1']];
 const LOCATION_ROWS=[['1-4','Front'],['5-6','Left Front'],['7-8','Right Front']];
+const HQ_EVENTS={
+1:{columns:['Turns 2-6','Turns 7-10'],rows:[['Situation Report: CO HQ must spend its first 3 Commands to send a report to the battalion.*','1/10','1/10'],['Comm Trouble: BN HQ does not Activate CO HQ this turn. CO HQ must spend its first 2 Commands to re-establish communications.*','2/10','2/10'],['Artillery Displacing: 15th Field Artillery Battalion is unavailable this turn.','3/10','3/10'],['Checking Up: Randomly select 1 higher HQ Staff and place their counter on the same card as the CO HQ. They will remain on the map for 2 turns. BN HQ is now considered to be "on the map" (4.1.1).','4/10','4/10'],['Trouble on the Flank: No unit may move forwards to a new row (one further forward than the current lead US unit) this turn.','5/10','5/10'],['Company on the Flank is Ahead: You must move at least one unit forward to a new row (one further forward than the current lead US unit) this turn to close the gap. (Ignore if already on Row 3).*','6/10','6/10'],['Battalion is Screaming for Action: You must move at least one unit forward to a new row (one further forward than the current lead US unit) with a PC marker this turn. (Ignore if already on Row 3 or no PC markers can be reached).*','7-8/10','7/10'],['Ammo Resupply: Place four of any one type of ammo on any card of your choice on Row 1.','9-10/10','8-10/10']]},
+2:{columns:['Turns 2-6','Turns 7-10'],rows:[['Situation Report: CO HQ must spend its first 3 Commands to send a report to the battalion.*','1/10','1/10'],['Comm Trouble: BN HQ does not Activate CO HQ this turn. CO HQ must spend its first 2 Commands to re-establish communications.*','2/10','2/10'],['Artillery Displacing: 15th Field Artillery Battalion is unavailable this turn.','3/10','3/10'],['Checking Up: Randomly select 1 higher HQ Staff and place their counter on the same card as the CO HQ. They will remain on the map for 2 turns. BN HQ is now considered to be “on the map” (4.1.1).','4/10','4/10'],['Trouble on the Flank: No unit may move forwards to a new row (one further forward than the current lead US unit) this turn.','5/10','5/10'],['Company on the Flank is Ahead: You must move at least one unit forward to a new row (one further forward than the current lead US unit) this turn to close the gap. (Ignore if already on Row 5).*','6/10','6/10'],['Battalion is Screaming for Action: You must move at least one unit forward to a new row (one further forward than the current lead US unit) with a PC Marker this turn. (Ignore if already on Row 5 or no PC markers can be reached).*','7-8/10','7/10'],['Ammo Resupply: Place four of any one type of ammo on any card of your choice on Row 1.','9-10/10','8-10/10']]},
+3:{columns:['Turns 2-6','Turns 7-10'],rows:[['Comm Trouble: BN HQ does not Activate CO HQ this turn. CO HQ must spend its first 2 Commands to re-establish communications.*','1-2/10','1-3/10'],['Lost in the Dark: Randomly select one unit from the patrol, move it one card in a randomly selected direction, and mark the unit Exposed. If the unit leaves the map boundaries, place a new card and a PC Marker for that Row (or an A marker for Row 5).','3-4/10','4/10'],['Hold up!: No unit may move to an unoccupied card this turn.','5-6/10','5-6/10'],['It’s Raining: Place a Rain marker. Visibility is modified by +2 this turn (Limited Visibility applies - 9.1). Remove at the end of the turn.','7/10','7/10'],['Mortar Platoon Displacing: Battalion Mortar Platoon is unavailable this turn.','8/10','8-9/10'],['CO HQ is Screaming for Action: You must move at least one unit towards the next waypoint this turn. (Ignore if all four waypoints have already been visited).*','9-10/10','10/10']]},
+4:{columns:['Turns 2-6','Turns 7-10'],rows:[['Situation Report: CO HQ must spend its first 3 Commands to send a report to the battalion.*','1-2/10','1/10'],['Comm Trouble: BN HQ does not Activate CO HQ this turn. CO HQ must spend its first 2 Commands to re-establish communications.*','3/10','2/10'],['Artillery Displacing: 15th Field Artillery Battalion is unavailable this turn.','4/10','3/10'],['Checking Up: Randomly select 1 higher HQ Staff and place their counter on the same card as the CO HQ. They will remain on the map for 2 turns. BN HQ is now considered to be “on the map” (4.1.1).','5/10','4/10'],['Trouble on the Flank: No unit may move forwards to a new row (one further forward than the current lead US unit) this turn.','6/10','5/10'],['Company on the Flank is Ahead: You must move at least one unit forward to a new row (one further forward than the current lead US unit) this turn to close the gap. (Ignore if already on Row 4).*','7/10','6/10'],['Battalion is Screaming for Action: You must move at least one unit forward to a new row (one further forward than the current lead US unit) with a PC Marker this turn. (Ignore if already on Row 4 or no PC markers can be reached).*','8/10','7/10'],['Rgt Cannon Company Displacing: Regimental Cannon Company is unavailable this turn.','9/10','8/10'],['Mortar Platoon Displacing: Battalion Mortar Platoon is unavailable this turn.','10/10','9/10'],['Ammo Resupply: Place four of any one type of ammo on any card of your choice on Row 1.','-','10/10']]},
+5:{columns:['Turns 2-6','Turns 7-10'],rows:[['Comm Trouble: BN HQ does not Activate CO HQ this turn. CO HQ must spend its first 2 Commands to re-establish communications.*','1-2/10','1-3/10'],['Lost in the Dark: Randomly select one unit from the patrol, move it one card in a randomly selected direction, and mark the unit Exposed. If the unit leaves the map boundaries, place a new card and a PC Marker for that Row (or an A marker for Row 5).','3-4/10','4/10'],['Hold up!: No unit may move to an unoccupied card this turn.','5-6/10','5-6/10'],['It’s Raining: Place a Rain marker. Visibility is modified by +2 this turn (Limited Visibility applies - 9.1). Remove at the end of the turn.','7/10','7/10'],['Mortar Platoon Displacing: Battalion Mortar Platoon is unavailable this turn.','8/10','8-9/10'],['CO HQ is Screaming for Action: You must move at least one unit towards the next waypoint this turn. (Ignore if all four waypoints have already been visited).*','9-10/10','10/10']]},
+6:{columns:['Turns 2-6','Turns 7-10'],rows:[['Situation Report: CO HQ must spend its first 3 Commands to send a report to the battalion.*','1-2/10','1/10'],['Comm Trouble: BN HQ does not Activate CO HQ this turn. CO HQ must spend its first 2 Commands to re-establish communications.*','3/10','2/10'],['Tank Support: Enter a tank platoon (4 tanks + tank HQ) of M5s on to any cards of your choice on Row 1. Each has 5 ammo.','4/10','3/10'],['Checking Up: Randomly select 1 higher HQ Staff and place their counter on the same card as the CO HQ. They will remain on the map for 2 turns. BN HQ is now considered to be “on the map” (4.1.1).','5/10','4/10'],['Trouble on the Flank: No unit may move forwards to a new row (one further forward than the current lead US unit) this turn.','6/10','5/10'],['Company on the Flank is Ahead: You must move at least one unit forward to a new row (one further forward than the current lead US unit) this turn to close the gap. (Ignore if already on Row 5).*','7/10','6/10'],['Battalion is Screaming for Action: You must move at least one unit forward to a new row (one further forward than the current lead US unit) with a PC Marker this turn. (Ignore if already on Row 5 or no PC markers can be reached).*','8/10','7/10'],['Rgt Cannon Company Displacing: Regimental Cannon Company is unavailable this turn.','9/10','8/10'],['Mortar Platoon Displacing: Battalion Mortar Platoon is unavailable this turn.','10/10','9/10'],['Ammo Resupply: Place four of any one type of ammo on any card of your choice on Row 1.','-','10/10']]},
+7:{columns:['Turns 2-6','Turns 7-10'],rows:[['Situation Report: CO HQ must spend its first 3 Commands to send a report to the battalion.*','1-2/10','1/10'],['Comm Trouble: BN HQ does not Activate CO HQ this turn. CO HQ must spend its first 2 Commands to re-establish communications.*','3/10','2/10'],['Tank Support: Enter a tank platoon (4 tanks + tank HQ) of M5s on to any cards of your choice on Row 1. Each has 5 ammo.','4/10','3/10'],['Checking Up: Randomly select 1 higher HQ Staff and place their counter on the same card as the CO HQ. They will remain on the map for 2 turns. BN HQ is now considered to be “on the map” (4.1.1).','5/10','4/10'],['Trouble on the Flank: No unit may move forwards to a new row (one further forward than the current lead US unit) this turn.','6/10','5/10'],['Company on the Flank is Ahead: You must move at least one unit forward to a new row (one further forward than the current lead US unit) this turn to close the gap. (Ignore if already on Row 6).*','7/10','6/10'],['Battalion is Screaming for Action: You must move at least one unit forward to a new row (one further forward than the current lead US unit) with a PC Marker this turn. (Ignore if already on Row 6 or no PC markers can be reached).*','8/10','7/10'],['Artillery Displacing: 15th Field Artillery Battalion is unavailable this turn.','9/10','8/10'],['Mortar Platoon Displacing: Battalion Mortar Platoon is unavailable this turn.','10/10','9/10'],['Ammo Resupply: Place four of any one type of ammo on any card of your choice on Row 1.','-','10/10']]}
+};
 const CONTACT_DATA={
 1:{packages:{1:'Mines!',2:'Incoming!',3:'Sniper!',4:'Mines and HMG Nest',5:'MG Nest',6:'Strong Point',7:'Defensive Position',8:'Pillbox',9:'Mortar Team',10:'FLAK 36 AA Gun',11:'Patrol',12:'Base of Fire'},map:{A:[[1,3],[2,5,3],[4,6],[5,7,6],[7,8],[8,10],[9,11,10]],B:[[1,2,2],[4,5,6],[7,6,8],[9,9],[10,10]],C:[[1,1,2],[3,2,6],[7,3],[8,4],[9,5,10]]}},
 2:{packages:{1:'Incoming!',2:'Sniper!',3:'MG Nest',4:'Defensive Position',5:'Strong Point',6:'Defensive Position+',7:'Command Post',8:'Mortar Position',9:'Maneuver',10:'Pillbox',11:'Base of Fire'},map:{A:[[1,3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10]],B:[[1,1,3],[4,2],[5,3,8],[9,6,10]],C:[[1,1,3],[4,2,5],[6,3,8],[10,10]]}},
@@ -54,20 +63,37 @@ function stepPanel(m,phase){
   return `<div class="card"><div class="step"><div class="kicker">${phase[0]}</div><div class="step-title">${esc(phase[1])}</div><div class="small">Tour ${state.turn}</div></div>${body}<div class="note">${esc(m.special)}</div></div>`;
 }
 function sequenceDetails(title,lines){return `<div class="details"><div class="side-title">Déroulement précis — ${esc(title)}</div><ol>${lines.map(x=>`<li>${x}</li>`).join('')}</ol></div>`}
-function phase31(){return `<p class="instruction"><b>Friendly Higher HQ Event Phase</b> — à partir du tour 2 uniquement. Tu suis la procédure avec le paquet de cartes et appliques l'événement si la condition HQ est présente.</p>${sequenceDetails('3.1 Friendly Higher HQ Event Phase',[
+function phase31(){
+  const hq=state.hqEvent;
+  const table=HQ_EVENTS[state.mission];
+  let eventBody='';
+  if(hq?.resolved==='yes'){
+    eventBody=`<div class="alert"><b>Événement HQ détecté.</b> Utilise le R# de la carte Action physique dans la table de la mission ${state.mission}. Le site ne demande jamais de saisir le numéro de la carte.</div>
+    <div class="table-wrap"><table class="rule-table"><thead><tr><th>Friendly Higher HQ Event</th><th>${table.columns[0]}</th><th>${table.columns[1]}</th></tr></thead><tbody>${table.rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>
+    <div class="details"><div class="side-title">Résolution</div><ol><li>Lis le R# directement sur la carte Action que tu viens de tirer.</li><li>Repère ce R# dans la colonne correspondant au tour actuel.</li><li>Applique exactement l'événement indiqué dans la ligne correspondante.</li><li>Si l'événement comporte une condition, une limite ou un gain d'Experience Point, applique-la telle qu'indiquée.</li><li>Lorsque l'événement est entièrement résolu, passe à la phase suivante.</li></ol></div>
+    <div class="decision"><button class="btn primary" onclick="resolveHQEvent()">Événement HQ résolu → phase suivante</button></div>`;
+  } else if(hq?.resolved==='no'){
+    eventBody=`<div class="alert"><b>Aucun événement Friendly Higher HQ.</b> La carte Action ne présente pas l'icône HQ. Passe à la phase suivante.</div><div class="decision"><button class="btn primary" onclick="resolveHQEvent()">Passer à la phase suivante →</button></div>`;
+  } else {
+    eventBody=`<div class="decision"><button class="btn primary" onclick="setHQEvent('yes')">Oui — icône HQ présente</button><button class="btn ghost" onclick="setHQEvent('no')">Non — pas d'icône HQ</button></div>`;
+  }
+  return `<p class="instruction"><b>Friendly Higher HQ Event Phase</b> — à partir du Tour 2. Tire physiquement une carte Action et vérifie la présence de l'icône HQ. Si l'icône est présente, la table Friendly Higher HQ Events propre à la mission apparaît automatiquement.</p>${sequenceDetails('3.1 Friendly Higher HQ Event Phase',[
 'Cette phase commence au Tour 2 ; au Tour 1, elle est ignorée.',
-'Le but est de déterminer si un événement de Friendly Higher HQ se produit pendant ce tour.',
-'La procédure officielle utilise une Action Card comme élément aléatoire de la résolution.',
-'Le site ne te demande jamais le numéro de cette carte et ne te demande pas de le saisir.',
-'Utilise physiquement la carte du paquet et vérifie l’icône radio/HQ indiquée par la règle.',
-'Si la condition d’événement est remplie, utilise la Friendly Higher HQ Events Table de la mission/campagne.',
-'Les événements de cette table sont obligatoires lorsqu’ils sont déclenchés.',
-'Applique ensuite les instructions de la case de l’événement concerné.',
-'Les effets propres à la mission doivent être appliqués en plus de la règle générale.',
+'Tire une Action Card physiquement ; le site ne demande jamais son numéro.',
+'Vérifie si l’icône HQ est présente sur la carte.',
+'Si l’icône HQ n’est pas présente, aucun Friendly Higher HQ Event n’est déterminé et tu passes à la phase suivante.',
+'Si l’icône HQ est présente, sélectionne « Oui — icône HQ présente » ci-dessous.',
+'Le site affiche alors uniquement la Friendly Higher HQ Events Table correspondant à la mission choisie.',
+'Lis le R# directement sur la carte physique et utilise la colonne correspondant au tour actuel.',
+'Ne saisis ni le numéro de la carte Action ni son R# dans le site.',
+'Applique exactement l’événement indiqué par la ligne correspondant au R#.',
+'Les événements de mission peuvent différer entre les missions offensives et les Combat Patrols.',
+'Les plages de R# peuvent également changer entre les Tours 2-6 et 7-10 ; utilise toujours la bonne colonne.',
 'Après résolution complète de l’événement, passe à la phase suivante de la séquence.',
-'Le site affiche ici les tables utiles ; il ne remplace pas le tirage physique du paquet.',
-'Référence moteur : Series Rules 3.1 ; les tables d’événements viennent du livret de campagne concerné.'
-])}<div class="decision"><button class="btn primary" onclick="nextStep('3.1 résolue')">Phase résolue →</button></div>`}
+'Le tableau affiché provient du livret de campagne Normandy correspondant à la mission sélectionnée.',
+'La règle générale de 3.1 impose le tirage d’une Action Card et la vérification de l’icône HQ avant de déterminer l’événement.'
+])}${eventBody}`;
+}
 function phase32(){return `<p class="instruction"><b>3.2 Defensive Missions: Enemy Activity Phase</b> — cette phase ne s'applique qu'aux missions défensives.</p>${sequenceDetails('3.2 Enemy Activity Phase — missions défensives',[
 'Commence par le Enemy Higher HQ Event Segment, à partir du Tour 2.',
 'Utilise la procédure d’événement Enemy Higher HQ et la table de la mission.',
@@ -199,6 +225,39 @@ function contactStep(){
 <div class="calc"><div class="field"><label>PC marker à résoudre</label><select onchange="updatePCContext(this.value)"><option value="A" ${pc==='A'?'selected':''}>A</option><option value="B" ${pc==='B'?'selected':''}>B</option><option value="C" ${pc==='C'?'selected':''}>C</option></select></div><div class="field"><label>Current Activity Level</label><select onchange="updateActivity(this.value)">${['No Contact','Contact','Engaged','Heavily Engaged'].map(v=>`<option ${act===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
 <p class="instruction">PC marker <b>${pc}</b> · Current Activity Level <b>${act}</b></p><div class="table-wrap"><table class="rule-table"><thead><tr><th>PC</th><th>No Contact</th><th>Contact</th><th>Engaged</th><th>Heavily Engaged</th></tr></thead><tbody>${pcRows.map(r=>`<tr>${r.map((c,i)=>`<td class="${r[0]===pc?'hl':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="alert"><span class="small">Résultat de la table</span><div class="number">${auto?'AUTO CONTACT':draw+' cartes Action'}</div><div>${auto?'Le Contact est automatique.':'Tire physiquement '+draw+' cartes ; aucune saisie de numéro n’est demandée.'}</div></div>${result}</div>`;
 }
+function packageResolution(pc){
+  const missionData=CONTACT_DATA[state.mission]||{packages:{},map:{}};
+  const rows=missionData.map?.[pc]||[];
+  const packageRows=[...new Set(rows.map(e=>e[1]))].sort((a,b)=>a-b).map(n=>{
+    const entries=rows.filter(e=>e[1]===n);
+    const ranges=entries.map(e=>e.length>2?`${e[0]}–${e[e.length-1]}`:`${e[0]}`).join(', ');
+    return `<tr><td>${n}</td><td>${esc(ranges)}/10</td><td>${esc(missionData.packages[n]||'Package')}</td></tr>`;
+  }).join('');
+  const locationRows=LOCATION_ROWS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+  return `<div class="contact-resolution">
+    <div class="alert"><b>Contact établi.</b> Le PC marker ${pc} est résolu. Ne saisis aucun numéro de carte Action.</div>
+    <div class="details"><div class="side-title">German Contact Packages — Mission ${state.mission} · PC ${pc}</div>
+      <ol>
+        <li>Prends la carte Action physique que tu viens de tirer pour déterminer le type de Contact.</li>
+        <li>Lis son R# directement sur la carte.</li>
+        <li>Repère cette valeur dans la table ci-dessous ; le site ne te demande pas de saisir ce R#.</li>
+        <li>Applique le package correspondant à la ligne trouvée.</li>
+        <li>Si le package indique des unités, des Mines, du Incoming! ou un autre effet, applique-le selon les règles de la mission.</li>
+        <li>Lorsque le placement d'une unité ennemie est requis, utilise ensuite la table Unit Placement.</li>
+        <li>Le placement et les effets éventuels sont résolus avant de poursuivre la séquence.</li>
+        <li>Après avoir terminé la résolution de ce Contact, retire le PC marker.</li>
+        <li>Le Current Activity Level doit être mis à jour immédiatement lorsque l'apparition des forces ennemies l'exige.</li>
+        <li>Cette résolution ne demande aucune saisie du numéro de la carte Action.</li>
+      </ol>
+      <div class="table-wrap"><table class="rule-table"><thead><tr><th>Package</th><th>R#</th><th>Contenu</th></tr></thead><tbody>${packageRows}</tbody></table></div>
+    </div>
+    <div class="details"><div class="side-title">Unit Placement</div>
+      <div class="table-wrap"><table class="rule-table"><thead><tr><th>R#</th><th>Placement</th></tr></thead><tbody>${locationRows}</tbody></table></div>
+      <p class="small">Lis le R# de la carte physique et applique la direction correspondante lorsque le package demande un placement.</p>
+    </div>
+    <div class="decision"><button class="btn primary" onclick="nextCombatStep('3.7.2 résolue — Contact')">Contact résolu → 3.7.3</button></div>
+  </div>`;
+}
 function phase373(){return `<p class="instruction"><b>3.7.3 Pinned Recovery Segment</b> — retire les Pinned markers qui peuvent être retirés avant le Combat Effects Segment.</p>${sequenceDetails('3.7.3 Pinned Recovery Segment',[
 'Après le Potential Contact Evaluation Segment, passe au Pinned Recovery Segment.',
 'Retire les Pinned markers des unités de véhicule ou d’infanterie qui ne sont pas sous un VOF marker.',
@@ -226,6 +285,8 @@ function phase374(){return `<p class="instruction"><b>3.7.4 Combat Effects Segme
 'La séquence suivante est alors 3.8 Clean Up Phase.'
 ])}<div class="decision"><button class="btn primary" onclick="nextStep('3.7 Mutual Combat résolue')">Passer à 3.8 →</button></div>`}
 function nextCombatStep(note){state.history.unshift(`Tour ${state.turn} · ${note}`);state.combatStep++;state.contact=null;render()}
+function setHQEvent(value){state.hqEvent=state.hqEvent||{};state.hqEvent.resolved=value;render()}
+function resolveHQEvent(){state.hqEvent=null;nextStep('3.1 résolue')}
 function setContact(value){state.contact=state.contact||{};state.contact.resolved=value;render()}
 function updatePCContext(v){state.contact={pc:v};render()}
 function updateActivity(v){state.activity=v;state.contact=state.contact||{};state.contact.pc=state.contact.pc||'A';render()}
@@ -244,9 +305,9 @@ function phase38(){return `<p class="instruction"><b>3.8 Clean Up Phase</b> — 
 'Le site doit conserver le numéro du tour et l’état de la séquence, mais ne nécessite aucune saisie de numéro de carte Action.',
 'La progression de la partie reste ainsi centrée sur les tables et décisions réellement nécessaires.'
 ])}<div class="decision"><button class="btn primary" onclick="nextStep('3.8 résolue')">Terminer le tour →</button></div>`}
-function nextStep(note){state.history.unshift(`Tour ${state.turn} · ${note}`);if(state.phase<phases.length-1)state.phase++;else{state.phase=0;state.turn++;}state.action=null;state.contact=null;state.combatStep=1;render()}
+function nextStep(note){state.history.unshift(`Tour ${state.turn} · ${note}`);if(state.phase<phases.length-1)state.phase++;else{state.phase=0;state.turn++;}state.action=null;state.contact=null;state.hqEvent=null;state.combatStep=1;render()}
 
 function statePanel(m){return `<div class="card side-card"><div class="side-title">État de la partie</div><div class="state-row"><span>Activity Level</span><span class="pill accent">${state.activity}</span></div><div class="state-row"><span>Mission</span><span>${state.mission}</span></div><div class="state-row"><span>Visibilité</span><span>${esc(m.vis)}</span></div><div class="state-row"><span>Tactiques ennemies</span><span>${esc(m.tactics)}</span></div><div class="state-row"><span>Enemy Experience</span><span>${esc(m.exp)}</span></div></div><div class="card side-card"><div class="side-title">Historique</div><div class="log">${state.history.slice(0,8).map(x=>`<div class="log-item">${esc(x)}</div>`).join('')||'<div class="small">Aucune action enregistrée.</div>'}</div></div>`}
 function tablesPanel(){return `<div class="card side-card"><div class="side-title">Table disponible</div><h3>Command Draw Modifiers</h3><div class="table-wrap"><table class="rule-table"><thead><tr><th>Condition</th><th>Mod.</th></tr></thead><tbody>${cmdRows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table></div><div class="note">Minimum résultant : 1 si Activated, 0 si Initiative.</div></div><div class="card side-card"><div class="side-title">Potential Contact Draw</div><div class="table-wrap"><table class="rule-table"><thead><tr><th>PC</th><th>No Contact</th><th>Contact</th><th>Engaged</th><th>Heavily</th></tr></thead><tbody>${pcRows.map(r=>`<tr>${r.map((c,i)=>`<td class="${i===0?'hl':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`}
-function startGame(){state={screen:'game',mission:Number(document.getElementById('mission').value),turn:1,phase:0,step:0,activity:'No Contact',action:null,history:[],combatStep:1,contact:null};render()}
+function startGame(){state={screen:'game',mission:Number(document.getElementById('mission').value),turn:1,phase:0,step:0,activity:'No Contact',action:null,history:[],combatStep:1,contact:null,hqEvent:null};render()}
 render();
