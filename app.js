@@ -1,4 +1,4 @@
-const APP_VERSION='0.4.3';
+const APP_VERSION='0.4.4';
 const MISSIONS={
 1:{title:'Trévières Offensive',date:'8–10 juin 1944',type:'Offensive',turns:10,vis:'Daylight +0',map:'4 × 3',objective:'Secure Primary and Secondary Objectives and Clear Rows 1 and 2.',pc:['Row 3: B','Row 2: A','Row 1: C'],tactics:'Deliberate Defense',exp:'Line',enemy:'352nd Division, 90th Brigade',special:'LOD between Staging Area and Row 1; LOA top of Row 3.'},
 2:{title:'Cerisy Offensive',date:'11–19 juin 1944',type:'Offensive',turns:10,vis:'Daylight +0',map:'4 × 5',objective:'Secure Primary and Secondary Objectives and Clear Rows 1 through 4.',pc:['Row 5: A','Rows 3–4: B','Rows 1–2: C'],tactics:'Hasty Defense',exp:'Line',enemy:'9th Fallschirmjäger Regiment, 3rd Fallschirmjäger Division',special:'LOD between Staging Area and Row 1; LOA top of Row 5.'},
@@ -62,7 +62,18 @@ function stepPanel(m,phase){
   else if(state.phase===7){body=phase38();}
   return `<div class="card"><div class="step"><div class="kicker">${phase[0]}</div><div class="step-title">${esc(phase[1])}</div><div class="small">Tour ${state.turn}</div></div>${body}<div class="note">${esc(m.special)}</div></div>`;
 }
-function sequenceDetails(title,lines){return `<div class="details"><div class="side-title">Déroulement précis — ${esc(title)}</div><ol>${lines.map(x=>`<li>${x}</li>`).join('')}</ol></div>`}
+function sequenceDetails(title,lines){
+  const generic = [
+    /Tire(?: physiquement)? une Action Card/i,
+    /Tire physiquement une carte Action/i,
+    /le site ne demande jamais/i,
+    /aucun numéro de carte Action/i,
+    /aucune saisie du numéro/i,
+    /ne demande aucune saisie du numéro/i
+  ];
+  const filtered = lines.filter(x=>!generic.some(rx=>rx.test(x)));
+  return `<div class="details"><div class="side-title">Déroulement précis — ${esc(title)}</div>${filtered.map(x=>`<p>${x}</p>`).join('')}</div>`;
+}
 function phase31(){
   const hq=state.hqEvent;
   const table=HQ_EVENTS[state.mission];
@@ -70,7 +81,7 @@ function phase31(){
   if(hq?.resolved==='yes'){
     eventBody=`<div class="alert"><b>Événement HQ détecté.</b> Utilise le R# de la carte Action physique dans la table de la mission ${state.mission}. Le site ne demande jamais de saisir le numéro de la carte.</div>
     <div class="table-wrap"><table class="rule-table"><thead><tr><th>Friendly Higher HQ Event</th><th>${table.columns[0]}</th><th>${table.columns[1]}</th></tr></thead><tbody>${table.rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>
-    <div class="details"><div class="side-title">Résolution</div><ol><li>Lis le R# directement sur la carte Action que tu viens de tirer.</li><li>Repère ce R# dans la colonne correspondant au tour actuel.</li><li>Applique exactement l'événement indiqué dans la ligne correspondante.</li><li>Si l'événement comporte une condition, une limite ou un gain d'Experience Point, applique-la telle qu'indiquée.</li><li>Lorsque l'événement est entièrement résolu, passe à la phase suivante.</li></ol></div>
+    <div class="details"><div class="side-title">Résolution</div><p>Lis le R# directement sur la carte Action que tu viens de tirer.</p><p>Repère ce R# dans la colonne correspondant au tour actuel.</p><p>Applique exactement l'événement indiqué dans la ligne correspondante.</p><p>Si l'événement comporte une condition, une limite ou un gain d'Experience Point, applique-la telle qu'indiquée.</p><p>Lorsque l'événement est entièrement résolu, passe à la phase suivante.</p></div>
     <div class="decision"><button class="btn primary" onclick="resolveHQEvent()">Événement HQ résolu → phase suivante</button></div>`;
   } else if(hq?.resolved==='no'){
     eventBody=`<div class="alert"><b>Aucun événement Friendly Higher HQ.</b> La carte Action ne présente pas l'icône HQ. Passe à la phase suivante.</div><div class="decision"><button class="btn primary" onclick="resolveHQEvent()">Passer à la phase suivante →</button></div>`;
@@ -201,26 +212,23 @@ function contactStep(){
   if(resolved==='no') result=`<div class="alert"><b>Aucun contact.</b> Retire le PC marker. La résolution de 3.7.2 est terminée.</div><div class="decision"><button class="btn primary" onclick="nextCombatStep('3.7.2 résolue — No Contact')">Passer à 3.7.3 →</button></div>`;
   else if(resolved==='yes') result=packageResolution(pc);
   else result=`<div class="decision"><button class="btn primary" onclick="setContact('yes')">Oui — Contact</button><button class="btn ghost" onclick="setContact('no')">Non — pas de Contact</button></div>`;
-  return `<div class="details"><div class="side-title">Déroulement précis — 3.7.2 Potential Contact Evaluation</div><ol>
-  <li>Examine chaque carte qui contient à la fois un PC marker et une unité amie.</li>
-  <li>Si plusieurs PC markers doivent être résolus, traite les lettres dans l’ordre A, puis B, puis C ; les marqueurs de même lettre sont traités dans un ordre aléatoire.</li>
-  <li>Si un marker est sur sa face « ? », révèle-le avant de le résoudre, sauf lorsqu’il sert à marquer une unité ennemie Unspotted.</li>
-  <li>Choisis ci-dessous la lettre du PC marker actuellement résolu : A, B ou C.</li>
-  <li>Regarde le Current Activity Level actuel.</li>
-  <li>Utilise la Potential Contact Draw Chart affichée ci-dessous.</li>
-  <li>Une valeur « Auto » signifie que le Contact est automatique.</li>
-  <li>Une valeur numérique indique combien de cartes Action doivent être tirées physiquement.</li>
-  <li>Le site ne te demande jamais le numéro de ces cartes et ne te demande jamais de saisir leur numéro.</li>
-  <li>Tu regardes simplement si l’une des cartes tirées contient le mot « Contact » dans sa zone supérieure.</li>
-  <li>Si au moins une carte porte « Contact », le Contact est établi ; sinon il n’y a pas de Contact.</li>
-  <li>Dans les deux cas, retire le PC marker après sa résolution.</li>
-  <li>Si un Contact est établi, utilise ensuite la table German Contact Packages de la mission.</li>
-  <li>Le R# du tirage est lu directement sur ta carte physique et sert à repérer le package dans la table affichée ; aucune saisie du numéro de carte n’est nécessaire.</li>
-  <li>Utilise ensuite la table Unit Placement pour déterminer la direction de placement.</li>
-  <li>Après l’apparition des forces ennemies, mets immédiatement à jour le Current Activity Level lorsque la règle l’impose.</li>
-  <li>La résolution d’un PC peut donc modifier la résolution des PC suivants du même segment.</li>
-  <li>Quand la résolution du PC considéré est terminée, passe au Pinned Recovery Segment.</li>
-</ol></div>
+  return `<div class="details"><div class="side-title">Déroulement précis — 3.7.2 Potential Contact Evaluation</div>
+  <p>Examine chaque carte qui contient à la fois un PC marker et une unité amie.</p>
+  <p>Si plusieurs PC markers doivent être résolus, traite les lettres dans l’ordre A, puis B, puis C ; les marqueurs de même lettre sont traités dans un ordre aléatoire.</p>
+  <p>Si un marker est sur sa face « ? », révèle-le avant de le résoudre, sauf lorsqu’il sert à marquer une unité ennemie Unspotted.</p>
+  <p>Choisis ci-dessous la lettre du PC marker actuellement résolu : A, B ou C.</p>
+  <p>Regarde le Current Activity Level actuel.</p>
+  <p>Utilise la Potential Contact Draw Chart affichée ci-dessous.</p>
+  <p>Une valeur « Auto » signifie que le Contact est automatique.</p>
+  <p>Une valeur numérique indique combien de cartes Action doivent être tirées physiquement.</p>
+  <p>Tu regardes simplement si l’une des cartes tirées contient le mot « Contact » dans sa zone supérieure.</p>
+  <p>Si au moins une carte porte « Contact », le Contact est établi ; sinon il n’y a pas de Contact.</p>
+  <p>Dans les deux cas, retire le PC marker après sa résolution.</p>
+  <p>Si un Contact est établi, utilise ensuite la table German Contact Packages de la mission.</p>
+  <p>Utilise ensuite la table Unit Placement pour déterminer la direction de placement.</p>
+  <p>Après l’apparition des forces ennemies, mets immédiatement à jour le Current Activity Level lorsque la règle l’impose.</p>
+  <p>La résolution d’un PC peut donc modifier la résolution des PC suivants du même segment.</p>
+  <p>Quand la résolution du PC considéré est terminée, passe au Pinned Recovery Segment.</p></div>
 <div class="card nested"><div class="step-title" style="font-size:18px">Potential Contact</div>
 <div class="calc"><div class="field"><label>PC marker à résoudre</label><select onchange="updatePCContext(this.value)"><option value="A" ${pc==='A'?'selected':''}>A</option><option value="B" ${pc==='B'?'selected':''}>B</option><option value="C" ${pc==='C'?'selected':''}>C</option></select></div><div class="field"><label>Current Activity Level</label><select onchange="updateActivity(this.value)">${['No Contact','Contact','Engaged','Heavily Engaged'].map(v=>`<option ${act===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
 <p class="instruction">PC marker <b>${pc}</b> · Current Activity Level <b>${act}</b></p><div class="table-wrap"><table class="rule-table"><thead><tr><th>PC</th><th>No Contact</th><th>Contact</th><th>Engaged</th><th>Heavily Engaged</th></tr></thead><tbody>${pcRows.map(r=>`<tr>${r.map((c,i)=>`<td class="${r[0]===pc?'hl':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="alert"><span class="small">Résultat de la table</span><div class="number">${auto?'AUTO CONTACT':draw+' cartes Action'}</div><div>${auto?'Le Contact est automatique.':'Tire physiquement '+draw+' cartes ; aucune saisie de numéro n’est demandée.'}</div></div>${result}</div>`;
@@ -237,18 +245,15 @@ function packageResolution(pc){
   return `<div class="contact-resolution">
     <div class="alert"><b>Contact établi.</b> Le PC marker ${pc} est résolu. Ne saisis aucun numéro de carte Action.</div>
     <div class="details"><div class="side-title">German Contact Packages — Mission ${state.mission} · PC ${pc}</div>
-      <ol>
-        <li>Prends la carte Action physique que tu viens de tirer pour déterminer le type de Contact.</li>
-        <li>Lis son R# directement sur la carte.</li>
-        <li>Repère cette valeur dans la table ci-dessous ; le site ne te demande pas de saisir ce R#.</li>
-        <li>Applique le package correspondant à la ligne trouvée.</li>
-        <li>Si le package indique des unités, des Mines, du Incoming! ou un autre effet, applique-le selon les règles de la mission.</li>
-        <li>Lorsque le placement d'une unité ennemie est requis, utilise ensuite la table Unit Placement.</li>
-        <li>Le placement et les effets éventuels sont résolus avant de poursuivre la séquence.</li>
-        <li>Après avoir terminé la résolution de ce Contact, retire le PC marker.</li>
-        <li>Le Current Activity Level doit être mis à jour immédiatement lorsque l'apparition des forces ennemies l'exige.</li>
-        <li>Cette résolution ne demande aucune saisie du numéro de la carte Action.</li>
-      </ol>
+        <p>Lis son R# directement sur la carte.</p>
+        <p>Repère cette valeur dans la table ci-dessous ; le site ne te demande pas de saisir ce R#.</p>
+        <p>Applique le package correspondant à la ligne trouvée.</p>
+        <p>Si le package indique des unités, des Mines, du Incoming! ou un autre effet, applique-le selon les règles de la mission.</p>
+        <p>Lorsque le placement d'une unité ennemie est requis, utilise ensuite la table Unit Placement.</p>
+        <p>Le placement et les effets éventuels sont résolus avant de poursuivre la séquence.</p>
+        <p>Après avoir terminé la résolution de ce Contact, retire le PC marker.</p>
+        <p>Le Current Activity Level doit être mis à jour immédiatement lorsque l'apparition des forces ennemies l'exige.</p>
+      
       <div class="table-wrap"><table class="rule-table"><thead><tr><th>Package</th><th>R#</th><th>Contenu</th></tr></thead><tbody>${packageRows}</tbody></table></div>
     </div>
     <div class="details"><div class="side-title">Unit Placement</div>

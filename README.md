@@ -35,3 +35,7 @@ Dans la phase 3.7.2, l'assistant ne demande plus le résultat textuel de l'Actio
 - puis le R# 1–8 de la table Unit Placement.
 
 Les tables de German Contact Packages et Unit Placement sont intégrées par mission pour la campagne Normandy.
+
+
+## Version 0.4.4
+Les explications de séquence sont présentées sous forme de paragraphes, sans listes à puces. Les rappels génériques sur la saisie des cartes Action ont été retirés des explications répétitives. Les détails restent centrés sur les règles et les opérations propres à la phase actuellement affichée.
