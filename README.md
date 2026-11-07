@@ -23,3 +23,13 @@ puis ouvrir `http://localhost:8000`.
 - Normandy Campaign Mission Book.
 - Player Aid — Sequence of Play.
 - Player Aid — Charts & Tables.
+
+## V0.2 — Potential Contact / Contact
+
+Dans la phase 3.7.2, l'assistant ne demande plus le résultat textuel de l'Action Card. Il demande :
+- le PC marker et le Current Activity Level ;
+- si le tirage produit Contact ;
+- si Contact, le R# 1–10 du tirage du German Contact Package ;
+- puis le R# 1–8 de la table Unit Placement.
+
+Les tables de German Contact Packages et Unit Placement sont intégrées par mission pour la campagne Normandy.
