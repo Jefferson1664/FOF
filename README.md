@@ -1,41 +1,34 @@
-# Fields of Fire — Turn Assistant
+# Fields of Fire — Local Turn Assistant
 
-**Version 0.4.3** (local)
+Assistant local et autonome pour Fields of Fire Deluxe. Ouvrir `index.html` directement ou lancer `python3 -m http.server 8000` puis ouvrir `http://localhost:8000`.
 
-Version 0.1 : SPA sans dépendances externes.
+## Version 0.5.0
 
-## Lancer
+Cette version étend l'architecture de mission à l'ensemble des campagnes intégrées au projet : Normandy, Keep Up The Fire!, Naktong River, Heartbreak Ridge et Vietnam.
 
-Ouvrir `index.html` dans un navigateur moderne. Pour un serveur local simple :
+Le sélecteur de campagne adapte désormais la liste des scénarios. Les dossiers de mission affichent le type, la durée, la visibilité, la carte, l'objectif, les Potential Contact et les principales particularités du scénario. Le moteur de séquence reste commun aux campagnes.
 
-`python3 -m http.server 8000`
+Le système de Potential Contact utilise les tables spécifiques aux missions lorsqu'elles sont encodées. Keep Up The Fire! dispose de ses packages allemands et de sa table Friendly Higher HQ Events. Les autres campagnes disposent de leurs tables de correspondance PC A/B/C ; lorsque le contenu détaillé d'un Enemy Force Package n'est pas encore transcrit dans l'interface, le numéro du package est affiché afin d'utiliser directement le tableau du livret de mission.
 
-puis ouvrir `http://localhost:8000`.
+Les explications de phase sont présentées sous forme de paragraphes et restent centrées sur les règles pertinentes à la phase. Le site ne demande jamais de saisir un numéro de carte Action.
 
-## Choix de conception
-- Aucun état complet de la carte n'est demandé.
-- L'utilisateur saisit les résultats des Action Cards.
-- Les tables sont affichées au moment où elles sont utiles.
-- La campagne Normandy est intégrée comme premier jeu de données.
-- Le moteur de séquence est séparé des données de mission pour permettre l'ajout des autres campagnes.
+## Sources du projet
 
-## Sources projet utilisées
-- Fields of Fire Deluxe Series Rules, Third Edition.
-- Errata & Clarifications — May 10, 2025.
-- Normandy Campaign Mission Book.
-- Player Aid — Sequence of Play.
-- Player Aid — Charts & Tables.
+- Series Rules — 3rd Edition
+- Errata & Clarifications — May 10, 2025
+- Normandy Campaign
+- Naktong River Campaign
+- Heartbreak Ridge Campaign
+- Vietnam Campaign
+- Keep Up The Fire! stand-alone mission
+- Player Aids et Field Manuals intégrés au projet
 
-## V0.2 — Potential Contact / Contact
+## Limite volontaire de cette version
 
-Dans la phase 3.7.2, l'assistant ne demande plus le résultat textuel de l'Action Card. Il demande :
-- le PC marker et le Current Activity Level ;
-- si le tirage produit Contact ;
-- si Contact, le R# 1–10 du tirage du German Contact Package ;
-- puis le R# 1–8 de la table Unit Placement.
-
-Les tables de German Contact Packages et Unit Placement sont intégrées par mission pour la campagne Normandy.
+Les tables détaillées de Friendly/Enemy Higher HQ Events et les descriptions complètes des Enemy Force Packages ne sont pas encore transcrites pour chaque mission de toutes les campagnes. Aucune donnée non vérifiée n'est inventée : lorsque l'interface ne possède pas encore la table détaillée, elle indique de revenir au livret de mission.
 
 
-## Version 0.4.4
-Les explications de séquence sont présentées sous forme de paragraphes, sans listes à puces. Les rappels génériques sur la saisie des cartes Action ont été retirés des explications répétitives. Les détails restent centrés sur les règles et les opérations propres à la phase actuellement affichée.
+## v0.5.1
+- Ajout de la campagne **Battle of the Bulge** issue des *Missions Living Rules 2025*.
+- 7 missions intégrées avec type, durée, visibilité, objectifs, Potential Contact, Enemy Activity/Experience et particularités de mission.
+- La campagne est disponible dans le sélecteur avec les autres campagnes.
