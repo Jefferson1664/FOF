@@ -161,7 +161,7 @@ function phase31(){
     eventBody=`<div class="decision"><button class="btn primary" onclick="setHQEvent('yes')">Oui — icône HQ présente</button><button class="btn ghost" onclick="setHQEvent('no')">Non — pas d'icône HQ</button></div>`;
   }
   return `<p class="instruction"><b>Friendly Higher HQ Event Phase</b> — à partir du Tour 2. Tire physiquement une carte Action et vérifie la présence de l'icône HQ. Si l'icône est présente, la table Friendly Higher HQ Events propre à la mission apparaît automatiquement.</p>${sequenceDetails('3.1 Friendly Higher HQ Event Phase',[
-'Cette phase commence au Tour 2 ; au Tour 1, elle est ignorée.',
+'Cette phase commence au Tour 2 ; au Tour 1, elle est ignorée. hello',
 'Tire une Action Card physiquement ; le site ne demande jamais son numéro.',
 'Vérifie si l’icône HQ est présente sur la carte.',
 'Si l’icône HQ n’est pas présente, aucun Friendly Higher HQ Event n’est déterminé et tu passes à la phase suivante.',
