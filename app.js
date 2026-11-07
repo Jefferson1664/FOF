@@ -1,4 +1,4 @@
-const APP_VERSION='0.4.0';
+const APP_VERSION='0.4.1';
 const MISSIONS={
 1:{title:'Trévières Offensive',date:'8–10 juin 1944',type:'Offensive',turns:10,vis:'Daylight +0',map:'4 × 3',objective:'Secure Primary and Secondary Objectives and Clear Rows 1 and 2.',pc:['Row 3: B','Row 2: A','Row 1: C'],tactics:'Deliberate Defense',exp:'Line',enemy:'352nd Division, 90th Brigade',special:'LOD between Staging Area and Row 1; LOA top of Row 3.'},
 2:{title:'Cerisy Offensive',date:'11–19 juin 1944',type:'Offensive',turns:10,vis:'Daylight +0',map:'4 × 5',objective:'Secure Primary and Secondary Objectives and Clear Rows 1 through 4.',pc:['Row 5: A','Rows 3–4: B','Rows 1–2: C'],tactics:'Hasty Defense',exp:'Line',enemy:'9th Fallschirmjäger Regiment, 3rd Fallschirmjäger Division',special:'LOD between Staging Area and Row 1; LOA top of Row 5.'},
@@ -36,11 +36,11 @@ function packageFor(mission,pc,r){
   for(const e of rows){if(rangeMatch(r,e)) return {number:e[1],name:CONTACT_DATA[mission].packages[e[1]],range:`${e[0]}${e.length>2?'-'+e[e.length-1]:''}`};}
   return null;
 }
-let state={screen:'setup',mission:null,turn:1,phase:0,step:0,activity:'No Contact',action:null,history:[]};
+let state={screen:'setup',mission:null,turn:1,phase:0,step:0,activity:'No Contact',action:null,history:[],combatStep:1,contact:null};
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function render(){document.getElementById('app').innerHTML=state.screen==='setup'?setup():game();}
 function setup(){return `<div class="shell"><aside class="side"><div class="brand">GMT / LOCAL TOOL<span>FIELDS OF FIRE</span></div><div class="campaign"><label>Campaign</label><select><option>Normandy — 9th Infantry Regiment</option></select></div><div class="nav"><div class="nav-item active">Nouvelle partie<small>Choisir une mission</small></div></div></aside><main class="content"><div class="setup"><div class="card"><div class="eyebrow">Local Turn Assistant</div><h1>Fields of Fire</h1><p class="sub">Assistant de séquence de jeu — basé sur les documents du projet.</p><div class="field"><label>Campagne</label><select id="camp"><option value="normandy">Normandy — 9th Infantry Regiment</option></select></div><div class="field"><label>Mission / scénario</label><select id="mission">${Object.entries(MISSIONS).map(([k,m])=>`<option value="${k}">Mission ${k} — ${esc(m.title)}</option>`).join('')}</select></div><button class="btn primary" onclick="startGame()">Commencer la partie</button><div class="version-badge">Version ${APP_VERSION}</div><div class="alert">La première version utilise la campagne Normandy et son architecture de missions. Les données de mission sont séparées du moteur afin d'ajouter ensuite les autres campagnes sans modifier le cœur de l'application.</div></div></div></main></div>`}
-function game(){const m=MISSIONS[state.mission];const phase=phases[state.phase];return `<div class="shell"><aside class="side"><div class="brand">GMT / LOCAL TOOL<span>FIELDS OF FIRE</span></div><div class="campaign"><label>Campagne</label><div class="pill accent">Normandy</div></div><div class="nav"><div class="nav-item active">${esc(m.title)}<small>Mission ${state.mission}</small></div>${phases.map((p,i)=>`<div class="nav-item ${i===state.phase?'active':''}">${p[0]} ${p[1]}</div>`).join('')}</div></aside><main class="content"><div class="top"><div><div class="eyebrow">Normandy · Mission ${state.mission}</div><h1>${esc(m.title)}</h1><div class="sub">${m.type} · ${m.turns} tours · ${m.vis}</div></div><div class="turnbox">Tour <strong>${state.turn}</strong> / ${m.turns}<div class="progress"><i style="width:${Math.min(100,state.turn/m.turns*100)}%"></i></div></div></div><div class="grid"><section>${stepPanel(m,phase)}</section><aside>${statePanel(m)}${tablesPanel()}</aside></div><div class="footer">Version ${APP_VERSION} · Références principales : Series Rules 3rd Edition, Errata & Clarifications May 10 2025, Normandy Mission Book, Player Aids.</div></main></div>`}
+function game(){const m=MISSIONS[state.mission];const phase=phases[state.phase];return `<div class="shell"><aside class="side"><div class="brand">GMT / LOCAL TOOL<span>FIELDS OF FIRE</span></div><div class="campaign"><label>Campagne</label><div class="pill accent">Normandy</div></div><div class="nav"><div class="nav-item active">${esc(m.title)}<small>Mission ${state.mission}</small></div>${phases.map((p,i)=>`<div class="nav-item ${i===state.phase?'active':''}">${p[0]} ${p[1]}</div>`).join('')}</div></aside><main class="content"><div class="top"><div><div class="eyebrow">Normandy · Mission ${state.mission}</div><h1>${esc(m.title)}</h1><div class="sub">${m.type} · ${m.turns} tours · ${m.vis}</div></div><div class="turnbox">Tour <strong>${state.turn}</strong> / ${m.turns}<div class="progress"><i style="width:${Math.min(100,state.turn/m.turns*100)}%"></i></div></div></div><div class="grid"><section>${stepPanel(m,phase)}</section><aside>${statePanel(m)}</aside></div><div class="footer">Version ${APP_VERSION} · Références principales : Series Rules 3rd Edition, Errata & Clarifications May 10 2025, Normandy Mission Book, Player Aids.</div></main></div>`}
 function stepPanel(m,phase){
   let body='';
   if(state.phase===0){body=phase31();}
@@ -49,7 +49,7 @@ function stepPanel(m,phase){
   else if(state.phase===3){body=phase34();}
   else if(state.phase===4){body=phase35();}
   else if(state.phase===5){body=phase36();}
-  else if(state.phase===6){body=contactStep();}
+  else if(state.phase===6){body=mutualCombatStep();}
   else if(state.phase===7){body=phase38();}
   return `<div class="card"><div class="step"><div class="kicker">${phase[0]}</div><div class="step-title">${esc(phase[1])}</div><div class="small">Tour ${state.turn}</div></div>${body}<div class="note">${esc(m.special)}</div></div>`;
 }
@@ -143,6 +143,26 @@ function phase36(){return `<p class="instruction"><b>3.6 AT Combat & Vehicle Mov
 'Après résolution de toutes les actions AT et véhicules, passe au Mutual Combat Phase.',
 'Le site affiche ici les tables de référence nécessaires mais ne te demande aucun numéro de carte Action.'
 ])}<div class="decision"><button class="btn primary" onclick="nextStep('3.6 résolue')">Phase résolue →</button></div>`}
+function mutualCombatStep(){
+  if(state.combatStep===1) return phase371();
+  if(state.combatStep===2) return contactStep();
+  if(state.combatStep===3) return phase373();
+  return phase374();
+}
+function phase371(){return `<p class="instruction"><b>3.7.1 Fire Mission Update Segment</b> — mets à jour les Fire Mission markers avant d'évaluer les Potential Contacts.</p>${sequenceDetails('3.7.1 Fire Mission Update Segment',[
+'Cette séquence ouvre le Mutual Combat Phase.',
+'Retire les marqueurs Incoming! et Air Strike! existants conformément à la procédure.',
+'Retourne les Pending markers sur leur face active lorsque la règle l’impose.',
+'Mets à jour le Current Activity Level avant de poursuivre.',
+'Cette mise à jour intervient avant le Potential Contact Evaluation Segment.',
+'Ne résous pas encore les effets de combat : ils appartiennent au Combat Effects Segment.',
+'Le but est de présenter un état de carte correct avant les évaluations de contact.',
+'Les marqueurs VOF/PDF déjà présents restent ceux de l’état de jeu jusqu’aux étapes où leur mise à jour est autorisée.',
+'Vérifie les éventuelles instructions particulières du scénario avant de continuer.',
+'Le site ne demande aucun numéro de carte Action.',
+'Lorsque cette mise à jour est terminée, passe à 3.7.2 Potential Contact Evaluation.',
+'La table suivante ne doit être utilisée que si la situation de jeu exige une valeur d’Activity Level ou une autre table spécifique.'
+])}<div class="decision"><button class="btn primary" onclick="nextCombatStep('3.7.1 résolue')">Passer à 3.7.2 →</button></div>`}
 function contactStep(){
   const pc=state.contact?.pc||'A';
   const act=state.activity;
@@ -152,15 +172,15 @@ function contactStep(){
   const auto=draw==='Auto';
   const resolved=state.contact?.resolved;
   let result='';
-  if(resolved==='no') result=`<div class="alert"><b>Aucun contact.</b> Retire le PC marker et poursuis la résolution du prochain PC marker conformément à 8.2.4.</div><div class="decision"><button class="btn primary" onclick="finishContact('No Contact')">PC résolu →</button></div>`;
+  if(resolved==='no') result=`<div class="alert"><b>Aucun contact.</b> Retire le PC marker. La résolution de 3.7.2 est terminée.</div><div class="decision"><button class="btn primary" onclick="nextCombatStep('3.7.2 résolue — No Contact')">Passer à 3.7.3 →</button></div>`;
   else if(resolved==='yes') result=packageResolution(pc);
   else result=`<div class="decision"><button class="btn primary" onclick="setContact('yes')">Oui — Contact</button><button class="btn ghost" onclick="setContact('no')">Non — pas de Contact</button></div>`;
   return `<div class="details"><div class="side-title">Déroulement précis — 3.7.2 Potential Contact Evaluation</div><ol>
   <li>Examine chaque carte qui contient à la fois un PC marker et une unité amie.</li>
   <li>Si plusieurs PC markers doivent être résolus, traite les lettres dans l’ordre A, puis B, puis C ; les marqueurs de même lettre sont traités dans un ordre aléatoire.</li>
   <li>Si un marker est sur sa face « ? », révèle-le avant de le résoudre, sauf lorsqu’il sert à marquer une unité ennemie Unspotted.</li>
-  <li>Identifie la lettre du PC marker : A représente la menace la plus forte et C la plus faible.</li>
-  <li>Regarde le Current Activity Level actuel de la carte/du jeu.</li>
+  <li>Choisis ci-dessous la lettre du PC marker actuellement résolu : A, B ou C.</li>
+  <li>Regarde le Current Activity Level actuel.</li>
   <li>Utilise la Potential Contact Draw Chart affichée ci-dessous.</li>
   <li>Une valeur « Auto » signifie que le Contact est automatique.</li>
   <li>Une valeur numérique indique combien de cartes Action doivent être tirées physiquement.</li>
@@ -173,14 +193,42 @@ function contactStep(){
   <li>Utilise ensuite la table Unit Placement pour déterminer la direction de placement.</li>
   <li>Après l’apparition des forces ennemies, mets immédiatement à jour le Current Activity Level lorsque la règle l’impose.</li>
   <li>La résolution d’un PC peut donc modifier la résolution des PC suivants du même segment.</li>
-  <li>Quand tous les PC applicables ont été traités, passe au Pinned Recovery Segment.</li>
+  <li>Quand la résolution du PC considéré est terminée, passe au Pinned Recovery Segment.</li>
 </ol></div>
-<div class="card nested"><div class="step-title" style="font-size:18px">Potential Contact</div><p class="instruction">PC marker <b>${pc}</b> · Current Activity Level <b>${act}</b></p><div class="table-wrap"><table class="rule-table"><thead><tr><th>PC</th><th>No Contact</th><th>Contact</th><th>Engaged</th><th>Heavily Engaged</th></tr></thead><tbody>${pcRows.map(r=>`<tr>${r.map((c,i)=>`<td class="${i===0||r[0]===pc?'hl':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="alert"><span class="small">Résultat de la table</span><div class="number">${auto?'AUTO CONTACT':draw+' cartes Action'}</div><div>${auto?'Le Contact est automatique.':'Tire physiquement '+draw+' cartes ; aucune saisie de numéro n’est demandée.'}</div></div>${result}</div>`;
+<div class="card nested"><div class="step-title" style="font-size:18px">Potential Contact</div>
+<div class="calc"><div class="field"><label>PC marker à résoudre</label><select onchange="updatePCContext(this.value)"><option value="A" ${pc==='A'?'selected':''}>A</option><option value="B" ${pc==='B'?'selected':''}>B</option><option value="C" ${pc==='C'?'selected':''}>C</option></select></div><div class="field"><label>Current Activity Level</label><select onchange="updateActivity(this.value)">${['No Contact','Contact','Engaged','Heavily Engaged'].map(v=>`<option ${act===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
+<p class="instruction">PC marker <b>${pc}</b> · Current Activity Level <b>${act}</b></p><div class="table-wrap"><table class="rule-table"><thead><tr><th>PC</th><th>No Contact</th><th>Contact</th><th>Engaged</th><th>Heavily Engaged</th></tr></thead><tbody>${pcRows.map(r=>`<tr>${r.map((c,i)=>`<td class="${r[0]===pc?'hl':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="alert"><span class="small">Résultat de la table</span><div class="number">${auto?'AUTO CONTACT':draw+' cartes Action'}</div><div>${auto?'Le Contact est automatique.':'Tire physiquement '+draw+' cartes ; aucune saisie de numéro n’est demandée.'}</div></div>${result}</div>`;
 }
+function phase373(){return `<p class="instruction"><b>3.7.3 Pinned Recovery Segment</b> — retire les Pinned markers qui peuvent être retirés avant le Combat Effects Segment.</p>${sequenceDetails('3.7.3 Pinned Recovery Segment',[
+'Après le Potential Contact Evaluation Segment, passe au Pinned Recovery Segment.',
+'Retire les Pinned markers des unités de véhicule ou d’infanterie qui ne sont pas sous un VOF marker.',
+'Les Mines sont également concernées, qu’elles soient activées ou non.',
+'Ne retire pas un Pinned marker qui reste soumis à un VOF marker.',
+'Cette étape ne demande aucun tirage de carte Action.',
+'Vérifie chaque unité concernée avant de modifier son statut.',
+'Ne mets pas encore à jour les effets simultanés du Combat Effects Segment.',
+'Une fois les récupérations terminées, passe au Combat Effects Segment.',
+'Le site ne demande aucune saisie de numéro de carte Action.',
+'Cette étape constitue la transition entre l’évaluation des contacts et la résolution des effets de combat.'
+])}<div class="decision"><button class="btn primary" onclick="nextCombatStep('3.7.3 résolue')">Passer à 3.7.4 →</button></div>`}
+function phase374(){return `<p class="instruction"><b>3.7.4 Combat Effects Segment</b> — résous les effets de combat simultanément, carte par carte, sans mettre à jour PDF/VOF avant le Clean Up.</p>${sequenceDetails('3.7.4 Combat Effects Segment',[
+'Les effets de combat sont considérés comme simultanés.',
+'Résous chaque carte dans l’ordre de ton choix.',
+'Ne mets pas à jour PDF ou VOF pendant ce segment ; attends le Clean Up lorsque la règle l’exige.',
+'Pour chaque unité d’infanterie sous un VOF marker, résous les attaques de Flamethrower lorsqu’elles sont applicables.',
+'Détermine ensuite le NCM de l’unité concernée.',
+'Tire physiquement une carte Action pour déterminer si le feu est efficace lorsque la règle le demande.',
+'En cas de Hit, tire la carte nécessaire pour déterminer l’effet du Hit.',
+'Applique les effets aux unités et aux marqueurs selon les règles de Combat Effects.',
+'Verifie les cas particuliers des unités, armes, véhicules et supports présents sur la carte.',
+'Le site ne demande jamais le numéro des cartes Action utilisées pour ces tirages.',
+'Quand toutes les cartes ont été résolues, termine 3.7.',
+'La séquence suivante est alors 3.8 Clean Up Phase.'
+])}<div class="decision"><button class="btn primary" onclick="nextStep('3.7 Mutual Combat résolue')">Passer à 3.8 →</button></div>`}
+function nextCombatStep(note){state.history.unshift(`Tour ${state.turn} · ${note}`);state.combatStep++;state.contact=null;render()}
 function setContact(value){state.contact=state.contact||{};state.contact.resolved=value;render()}
 function updatePCContext(v){state.contact={pc:v};render()}
 function updateActivity(v){state.activity=v;state.contact=state.contact||{};state.contact.pc=state.contact.pc||'A';render()}
-function packageResolution(pc){return `<div class="card nested"><div class="side-title">German Contact Packages — PC ${pc}</div><p class="instruction">Le tirage physique fournit un <b>R# /10</b>. Ne saisis pas le numéro de la carte Action : lis simplement le R# sur la carte et consulte directement la table ci-dessous.</p><div class="table-wrap"><table class="rule-table"><thead><tr><th>Package</th><th>R# PC ${pc}</th><th>Description</th></tr></thead><tbody>${packageTableRows(pc).join('')}</tbody></table></div><div class="side-title" style="margin-top:18px">Unit Placement</div><div class="table-wrap"><table class="rule-table"><thead><tr><th>R#</th><th>Direction</th></tr></thead><tbody>${LOCATION_ROWS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody></table></div><div class="alert"><b>Procédure :</b> lis le R# /10 du tirage physique dans la table PC ${pc}, puis lis le R# /8 de placement dans la table Unit Placement. Aucun de ces résultats n’est saisi dans le site.</div><div class="decision"><button class="btn primary" onclick="finishContact('Contact résolu — package/localisation consultés')">Contact résolu →</button></div></div>`}
 function packageTableRows(pc){const rows=CONTACT_DATA[state.mission]?.map?.[pc]||[];const used=new Set(rows.map(e=>e[1]));return [...used].sort((a,b)=>a-b).map(n=>{const e=rows.find(x=>x[1]===n);const rr=e.length>2?`${e[0]}–${e[e.length-1]}`:`${e[0]}`;return `<tr><td>${n}</td><td>${rr}/10</td><td>${esc(CONTACT_DATA[state.mission].packages[n]||'Package')}</td></tr>`})}
 function phase38(){return `<p class="instruction"><b>3.8 Clean Up Phase</b> — nettoie l’état de la carte, prépare le tour suivant et remet la séquence au début.</p>${sequenceDetails('3.8 Clean Up Phase',[
 'Retire les marqueurs Exposed selon la procédure de Clean Up.',
@@ -196,9 +244,9 @@ function phase38(){return `<p class="instruction"><b>3.8 Clean Up Phase</b> — 
 'Le site doit conserver le numéro du tour et l’état de la séquence, mais ne nécessite aucune saisie de numéro de carte Action.',
 'La progression de la partie reste ainsi centrée sur les tables et décisions réellement nécessaires.'
 ])}<div class="decision"><button class="btn primary" onclick="nextStep('3.8 résolue')">Terminer le tour →</button></div>`}
-function nextStep(note){state.history.unshift(`Tour ${state.turn} · ${note}`);if(state.phase<phases.length-1)state.phase++;else{state.phase=0;state.turn++;}state.action=null;state.contact=null;render()}
+function nextStep(note){state.history.unshift(`Tour ${state.turn} · ${note}`);if(state.phase<phases.length-1)state.phase++;else{state.phase=0;state.turn++;}state.action=null;state.contact=null;state.combatStep=1;render()}
 
 function statePanel(m){return `<div class="card side-card"><div class="side-title">État de la partie</div><div class="state-row"><span>Activity Level</span><span class="pill accent">${state.activity}</span></div><div class="state-row"><span>Mission</span><span>${state.mission}</span></div><div class="state-row"><span>Visibilité</span><span>${esc(m.vis)}</span></div><div class="state-row"><span>Tactiques ennemies</span><span>${esc(m.tactics)}</span></div><div class="state-row"><span>Enemy Experience</span><span>${esc(m.exp)}</span></div></div><div class="card side-card"><div class="side-title">Historique</div><div class="log">${state.history.slice(0,8).map(x=>`<div class="log-item">${esc(x)}</div>`).join('')||'<div class="small">Aucune action enregistrée.</div>'}</div></div>`}
 function tablesPanel(){return `<div class="card side-card"><div class="side-title">Table disponible</div><h3>Command Draw Modifiers</h3><div class="table-wrap"><table class="rule-table"><thead><tr><th>Condition</th><th>Mod.</th></tr></thead><tbody>${cmdRows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table></div><div class="note">Minimum résultant : 1 si Activated, 0 si Initiative.</div></div><div class="card side-card"><div class="side-title">Potential Contact Draw</div><div class="table-wrap"><table class="rule-table"><thead><tr><th>PC</th><th>No Contact</th><th>Contact</th><th>Engaged</th><th>Heavily</th></tr></thead><tbody>${pcRows.map(r=>`<tr>${r.map((c,i)=>`<td class="${i===0?'hl':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`}
-function startGame(){state={screen:'game',mission:Number(document.getElementById('mission').value),turn:1,phase:0,step:0,activity:'No Contact',action:null,history:[]};render()}
+function startGame(){state={screen:'game',mission:Number(document.getElementById('mission').value),turn:1,phase:0,step:0,activity:'No Contact',action:null,history:[],combatStep:1,contact:null};render()}
 render();
