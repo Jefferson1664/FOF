@@ -51,3 +51,9 @@ Les tables détaillées de Friendly/Enemy Higher HQ Events et les descriptions c
 ### v0.7.1
 - Les « tables complètes » sont maintenant rendues comme de véritables tableaux HTML avec colonnes et la même fonte que l’interface.
 - Le déroulement détaillé des phases utilise de nouveau des listes à puces.
+
+
+## v0.7.2
+- Ajout d’un bouton « Séquence précédente » à côté du bouton de progression pour chaque séquence.
+- La navigation arrière fonctionne également à l’intérieur des sous-séquences de la Mutual Combat Phase (3.7).
+- En début de tour, le retour précédent ramène à la dernière phase du tour précédent.
