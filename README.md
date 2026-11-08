@@ -64,3 +64,8 @@ Les tables détaillées de Friendly/Enemy Higher HQ Events et les descriptions c
 - 3.7.4 : ajout d’une table de référence des résultats de combat.
 - Conservation des références officielles `MISS`, `PIN`, `HIT`, `C`, `P`, `L`, `F` et `A`.
 - Explications des effets entièrement présentées en français.
+
+
+## v0.7.4
+- Suppression de la colonne latérale gauche de l'interface.
+- L'espace principal utilise désormais toute la largeur disponible.
