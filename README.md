@@ -69,3 +69,7 @@ Les tables détaillées de Friendly/Enemy Higher HQ Events et les descriptions c
 ## v0.7.4
 - Suppression de la colonne latérale gauche de l'interface.
 - L'espace principal utilise désormais toute la largeur disponible.
+
+
+## v0.7.4
+Correction des tables 3.7 : les German/Enemy Force Packages conservent désormais toutes les lignes et les colonnes, y compris les variantes N/D et les mentions entre parenthèses. La table Package Placement détecte également les différents formats utilisés par les livrets de campagne (Package de forces, German Contact Package Placement Tables et Contact Column).
