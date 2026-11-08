@@ -75,8 +75,12 @@ Les tables détaillées de Friendly/Enemy Higher HQ Events et les descriptions c
 Correction des tables 3.7 : les German/Enemy Force Packages conservent désormais toutes les lignes et les colonnes, y compris les variantes N/D et les mentions entre parenthèses. La table Package Placement détecte également les différents formats utilisés par les livrets de campagne (Package de forces, German Contact Package Placement Tables et Contact Column).
 
 
-## v0.7.5
+## v0.7.6
 - Vérification des tables de packages pour l'ensemble des campagnes et scénarios.
 - Ajout des NVA Enemy Packages manquants pour les missions Vietnam 5, 6 et 7 (7A/7B).
 - Ajout de l'information de placement des packages pour Heartbreak Ridge, où le placement est toujours droit devant.
 - Version affichée dans l'écran « Commencer la partie » portée à 0.7.5.
+
+
+## v0.7.6
+Vérification des tables de mission à partir des tableaux PDF structurés pour toutes les missions : Enemy Higher HQ Events, Enemy Force Packages et, lorsqu’elle existe, Package Placement. Les cellules sont désormais conservées intégralement et rendues en véritables colonnes sans troncature.
