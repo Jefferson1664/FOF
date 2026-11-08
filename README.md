@@ -57,3 +57,10 @@ Les tables détaillées de Friendly/Enemy Higher HQ Events et les descriptions c
 - Ajout d’un bouton « Séquence précédente » à côté du bouton de progression pour chaque séquence.
 - La navigation arrière fonctionne également à l’intérieur des sous-séquences de la Mutual Combat Phase (3.7).
 - En début de tour, le retour précédent ramène à la dernière phase du tour précédent.
+
+
+## v0.7.3
+
+- 3.7.4 : ajout d’une table de référence des résultats de combat.
+- Conservation des références officielles `MISS`, `PIN`, `HIT`, `C`, `P`, `L`, `F` et `A`.
+- Explications des effets entièrement présentées en français.
