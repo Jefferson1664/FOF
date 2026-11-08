@@ -40,9 +40,14 @@ Les tables détaillées de Friendly/Enemy Higher HQ Events et les descriptions c
 - La campagne est disponible dans le sélecteur avec les autres campagnes.
 
 
-## v0.7.0 — Tables missionnelles complètes
+## v0.7.1 — Tables missionnelles complètes
 - Reconstruction des tables propres à chaque mission à partir des livrets de campagne intégrés.
 - Tables intégrées selon disponibilité : appui-feu, événements HQ supérieur ami, événements HQ supérieur ennemi, packages de forces ennemies/allemands, packages de contact, table de déclenchement des attaques, contre-attaque PC A et placement des unités/packages.
 - Affichage contextuel des tables dans les phases concernées et accès à l’ensemble du dossier des tables de la mission.
 - Traduction française des tableaux, avec conservation des termes techniques officiels de Fields of Fire (VOF, PDF, PC A, R#, LOS, Exposed, Pinned, Commands, etc.).
 - Données de mission issues des livrets intégrés au projet, notamment Normandy, Heartbreak Ridge, Naktong River, Vietnam, Battle of the Bulge et Keep Up The Fire!.
+
+
+### v0.7.1
+- Les « tables complètes » sont maintenant rendues comme de véritables tableaux HTML avec colonnes et la même fonte que l’interface.
+- Le déroulement détaillé des phases utilise de nouveau des listes à puces.
